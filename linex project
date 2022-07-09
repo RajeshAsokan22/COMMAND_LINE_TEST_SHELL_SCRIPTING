@@ -1,1 +1,227 @@
-command line test
+<<doc
+NAME:Rajesh.A
+DATE:
+DESCRIPTION:
+SAMPLE I/P:
+SAMPLE O/P:
+doc
+#!/bin/bash
+function result()
+{
+    count=0
+    ansarr=(`cat answer.txt`)
+    userans=(`cat useranswer.txt`)
+    for m in `seq 0 $((${#ansarr[@]}-1))`
+    do
+	if [ ${ansarr[$m]} = ${userans[$m]} ]
+	then
+	    count=$(($count+1))
+	fi
+    done
+    clear
+    echo -e "\e[93myour score is $count/10 \e[39m "
+    h=0
+    t=5
+    for n in `seq 0 $((${#ansarr[@]}-1))`
+    do
+	h=$(($h+5))
+	cat questionpaper.txt | head -n $h | tail -n $t
+	echo "correct answer: ${ansarr[$n]}"
+	echo "choosen option: ${userans[$n]}"
+    done
+    echo -e "\e[94m************************ \e[92mTHANK YOU \e[94m************************** \e[39m "
+    rm useranswer.txt
+    cont1
+}
+function cont1()
+{
+    read -p "Do you want to continue (y/n):" x
+    if [ $x = y -o $x = Y ]
+    then
+	clear
+	cred
+    else
+	exit
+    fi
+}
+function exam()
+{
+    h=0
+    for j in `seq 10`
+    do
+	t=5
+	h=$(($h+5))
+	for i in `seq 10 -1 0`
+	do
+	    clear
+	    cat questionpaper.txt | head -n $h | tail -n $t
+	    echo -n -e "enter the option $i: \r"
+	    echo
+	    read -t 1 op
+	    if [ ${#op} -ne 0 ]
+	    then
+		echo "$op" >> useranswer.txt
+		break
+	    fi
+	done
+	if [ ${#op} -eq 0 ]
+	then
+	    echo -e "\e[91mtimeout\e[39m!! " >> useranswer.txt
+	fi
+    done
+    result
+}
+function cont()
+{
+    echo -e "\e[91mtimeout!! \e[39m "
+    read -p "Do you want to continue (y/n):" x
+    if [ $x = y -o $x = Y ]
+    then
+	clear
+	cred
+    else
+	exit
+    fi
+}
+function taketest()
+{
+    echo "Enter the option"
+    echo "1.Take test"
+    echo "2.back to home"
+    read -t 10 a
+    if [ -z $a ]
+    then
+	cont
+    fi
+    case $a in
+	1) clear
+	    echo -e "*************************** \e[96mGENERAL INSTRUCTIONS \e[39m******************************"
+	    echo ">Total Duration: 1min 40sec"
+	    echo ">Each question has time limit 10 seconds."
+	    echo ">Total questions: 10"
+	    echo ">Total marks: 10"
+	    echo ">Each question contain 1 mark."
+	    echo -e "\e[93m#############################################################################"
+	    echo -e "\e[96;5m                             ALL THE BEST                                    "
+	    echo -e "\e[93;25m#############################################################################"
+	    echo -e "\e[39mPress enter to attempt the quiz"
+	    read e
+	    exam
+	    ;;
+	2) cred
+	    ;;
+	*) clear
+	    echo -e "\e[33minvalid option \e[39m "
+	    taketest
+	    ;;
+    esac
+}
+function option()
+{
+    case $opt in
+	1) echo -e "*************************** \e[92mSIGN UP \e[39m******************************"
+	    echo "Enter username:"
+	    read -t 10 username
+	    if [ -z $username ]
+	    then
+		cont
+	    fi
+	    for i in `seq 0 $((${#userarr[@]}-1))`
+	    do
+		if [ $username = ${userarr[$i]} ]
+		then
+		    clear
+		    echo -e "\e[33m!!!username already exist, choose another username!!! \e[39m "
+		    option
+		fi
+	    done
+	    echo "Enter password:" 
+	    read -st 10 pass1
+	    if [ -z $pass1 ]
+	    then
+		cont
+	    fi
+	    if [ ${#pass1} -ge 8 ]
+	    then 
+		echo "confirm pasword:" 
+		read -st 10 pass2
+		if [ -z $pass2 ]
+		then
+		    cont
+		fi
+		if [ $pass1 = $pass2 ]
+		then
+		    clear
+		    echo "$username" >> user.csv
+		    echo "$pass2" >> password.csv
+		    echo -e "\e[32m@@@SIGN UP IS SUCCESSFULLY COMPLETED@@@ \e[39m"
+		    cred
+		else
+		    clear
+		    echo -e "\e[33m!!!password is not matching!!! \e[39m "
+		    option
+		fi
+	    else
+		echo -e "\e[33m!!!password should have atleast 8 chars!!! \e[39m "
+		option
+	    fi
+	    ;;
+	2) echo -e "****************************** \e[92mSIGN IN \e[39m*******************************"
+	    echo "Enter username:" 
+	    read -t 10 username1
+	    if [ -z $username1 ]
+	    then
+		cont
+	    fi
+	    echo "Enter password:" 
+	    read -st 10 password1
+	    if [ -z $password1 ]
+	    then
+		cont
+	    fi
+	    for i in `seq 0 $((${#userarr[@]}-1))`
+	    do
+		if [ $username1 = ${userarr[$i]} ]
+		then
+		    if [ $password1 = ${passarr[$i]} ]
+		    then
+			clear
+			taketest
+		    else
+			clear
+			echo -e "\e[33m!!!Invalid password!!! \e[39m "
+			option
+		    fi
+		fi
+	    done
+	    echo -e "\e[33m!!!Invalid username!!! \e[39m "
+	    option
+	    ;;
+	3) exit
+	    ;;
+	*)  echo "!!!invalid option!!!"
+	    cont
+	    ;;
+    esac
+}
+function cred()
+{
+    clear
+    echo -e "\e[93m#################################################################################################################"
+    echo -e "\e[96;5m                                                   WELCOME                                                   "
+    echo -e "\e[93;25m#################################################################################################################"
+    echo -e "\e[39mPlease select an option"
+    echo "1-signup"
+    echo "2-signin"
+    echo "3-exit"
+    userarr=(`cat user.csv`)
+    passarr=(`cat password.csv`)
+    read -t 10 opt
+    if [ -z $opt ]
+    then
+	cont
+    fi
+    option
+}
+cred
+
